@@ -1,17 +1,20 @@
+from typing import Any, Dict, Union
 from ..api.base import BestBuyCore
 from ..utils.exceptions import BestBuyProductAPIError
 from ..constants import PRODUCT_DESCRIPTION_TYPES, PRODUCT_API
 
 
 class BestBuyProductsAPI(BestBuyCore):
-    def _api_name(self):
+    def _api_name(self) -> str:
         return PRODUCT_API
 
     # =================================
     #   Search by description or SKU
     # =================================
 
-    def search_by_description(self, description_type, description, **kwargs):
+    async def search_by_description(
+        self, description_type: int, description: str, **kwargs: Any
+    ) -> Union[Dict[str, Any], bytes]:
         """Searches the product API using description parameter
         :params:
             :description_type (int): Integer from 1 to 4 to determine the type
@@ -25,18 +28,22 @@ class BestBuyProductsAPI(BestBuyCore):
         """
         d_type = PRODUCT_DESCRIPTION_TYPES[description_type]
         payload = {"query": "{0}={1}".format(d_type, description), "params": kwargs}
-        return self._call(payload)
+        return await self._call(payload)
 
-    def search_by_sku(self, sku, **kwargs):
+    async def search_by_sku(
+        self, sku: Union[str, int], **kwargs: Any
+    ) -> Union[Dict[str, Any], bytes]:
         """Search the product API by SKU
         :params:
             :sky (str): SKU number of the desired product.
             :kwargs (dict): request parameters
         """
         payload = {"query": "sku={0}".format(sku), "params": kwargs}
-        return self._call(payload)
+        return await self._call(payload)
 
-    def search_by_review_criteria(self, review_type, review, **kwargs):
+    async def search_by_review_criteria(
+        self, review_type: int, review: float, **kwargs: Any
+    ) -> Union[Dict[str, Any], bytes]:
         """
         Searches the product API using the Review criteria.
 
@@ -56,13 +63,15 @@ class BestBuyProductsAPI(BestBuyCore):
         if review_type == 2:
             review = int(review)
         payload = {"query": "{0}={1}".format(review_type, review), "params": kwargs}
-        return self._call(payload)
+        return await self._call(payload)
 
     # =================================
     #         Custome Search
     # =================================
 
-    def search(self, query, **kwargs):
+    async def search(
+        self, query: str, **kwargs: Any
+    ) -> Union[Dict[str, Any], bytes]:
         """Performs a customized search on the BestBuy product API. Query
         parameters should be passed to function in a dictionary.
 
@@ -72,4 +81,4 @@ class BestBuyProductsAPI(BestBuyCore):
 
         """
         payload = {"query": query, "params": kwargs}
-        return self._call(payload)
+        return await self._call(payload)

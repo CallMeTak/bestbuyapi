@@ -1,6 +1,7 @@
 import json
 import zipfile
 from io import BytesIO
+from typing import Any, Dict, Union
 
 from ..constants import BULK_API
 from ..api.base import BestBuyCore
@@ -8,10 +9,10 @@ from ..utils.exceptions import BestBuyBulkAPIError
 
 
 class BestBuyBulkAPI(BestBuyCore):
-    def _api_name(self):
+    def _api_name(self) -> str:
         return BULK_API
 
-    def archive(self, name, file_format):
+    async def archive(self, name: str, file_format: str) -> Dict[str, Any]:
         """BestBuy generates Bulk files (archives) daily at 9:00 AM CST.
         :params:
             :name (str): Archive type. The type supported by BestBuy's API are:
@@ -30,10 +31,10 @@ class BestBuyBulkAPI(BestBuyCore):
             - https://developer.bestbuy.com/documentation/bulkDownload-api
         """
         payload = {"query": f"{name}.{file_format}.zip", "params": {}}
-        response = self._call(payload)
+        response = await self._call(payload)
         return self._load_zipped_response(response, file_format)
 
-    def archive_subset(self, subset, file_format):
+    async def archive_subset(self, subset: str, file_format: str) -> Dict[str, Any]:
         """Bulk files (archives) are generated every day at 9 AM by BestBuy.
 
         :params:
@@ -58,13 +59,15 @@ class BestBuyBulkAPI(BestBuyCore):
             - https://developer.bestbuy.com/documentation/bulkDownload-api
         """
         payload = {"query": f"subsets/{subset}.{file_format}.zip", "params": {}}
-        response = self._call(payload)
+        response = await self._call(payload)
         return self._load_zipped_response(response, file_format)
 
-    def _load_zipped_response(self, zipped_response, file_format):
+    def _load_zipped_response(
+        self, zipped_response: bytes, file_format: str
+    ) -> Dict[str, Any]:
         if zipfile.is_zipfile(BytesIO(zipped_response)):
             with zipfile.ZipFile(BytesIO(zipped_response), "r") as z:
-                out = {}
+                out: Dict[str, Any] = {}
                 for filename in z.namelist():
                     with z.open(filename) as f:
                         data = f.read()
@@ -73,3 +76,4 @@ class BestBuyBulkAPI(BestBuyCore):
                         else:
                             out[filename] = data
                 return out
+        return {}

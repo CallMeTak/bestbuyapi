@@ -1,4 +1,6 @@
 import json
+import pytest
+from pytest_httpx import HTTPXMock
 
 from bestbuyapi import BASE_URL, BestBuyAPI
 
@@ -16,17 +18,51 @@ def test_build_url(bbapi):
     assert thePayload.get("apiKey") is not None, "Response doesn't have API Key"
 
 
-def test_search_category_by_id(bbapi):
+@pytest.mark.asyncio
+async def test_search_category_by_id(bbapi, httpx_mock: HTTPXMock):
     cat_id = "cat00000"
+    httpx_mock.add_response(
+        json={"categories": [{"id": cat_id}]},
+        headers={"Content-Type": "application/json; charset=UTF-8"},
+    )
     query = f"id={cat_id}"
-    resp = bbapi.category.search(query=query, show="id", format="json")
+    resp = await bbapi.category.search(query=query, show="id", format="json")
     assert resp["categories"][0]["id"] == cat_id, "Returned category id is different"
 
 
-def test_search_category_by_name(bbapi):
+@pytest.mark.asyncio
+async def test_search_category_by_name(bbapi, httpx_mock: HTTPXMock):
     cat_name = "Sony"
+    httpx_mock.add_response(
+        json={"categories": [{"name": cat_name}]},
+        headers={"Content-Type": "application/json; charset=UTF-8"},
+    )
     query = f"name={cat_name}"
-    resp = bbapi.category.search(query=query, format="json")
+    resp = await bbapi.category.search(query=query, format="json")
+    assert (
+        resp["categories"][0]["name"] == cat_name
+    ), "Response category name is different"
+
+
+@pytest.mark.asyncio
+async def test_search_by_id(bbapi, httpx_mock: HTTPXMock):
+    cat_id = "cat00000"
+    httpx_mock.add_response(
+        json={"categories": [{"id": cat_id}]},
+        headers={"Content-Type": "application/json; charset=UTF-8"},
+    )
+    resp = await bbapi.category.search_by_id(category_id=cat_id, format="json")
+    assert resp["categories"][0]["id"] == cat_id, "Returned category id is different"
+
+
+@pytest.mark.asyncio
+async def test_search_by_name_direct(bbapi, httpx_mock: HTTPXMock):
+    cat_name = "Sony"
+    httpx_mock.add_response(
+        json={"categories": [{"name": cat_name}]},
+        headers={"Content-Type": "application/json; charset=UTF-8"},
+    )
+    resp = await bbapi.category.search_by_name(category=cat_name, format="json")
     assert (
         resp["categories"][0]["name"] == cat_name
     ), "Response category name is different"

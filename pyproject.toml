@@ -1,38 +1,29 @@
-[tool.poetry]
+[project]
 name = "bestbuyapi"
-version = "2.0.0"
+version = "3.0.0"
 description = "Python Wrapper over Best Buy's REST API"
-
-license = "MIT"
-
-authors = ["lv10 <luis@lv10.me>"]
-
 readme = "README.md"
-
-repository = "https://github.com/lv10/bestbuyapi"
-
+license = { text = "MIT" }
+authors = [{ name = "lv10", email = "luis@lv10.me" }]
+requires-python = ">=3.7"
 classifiers = [
     "Topic :: Software Development :: Build Tools",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9"
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "httpx>=0.23.0",
 ]
 
-exclude = ["tests/"]
-
-[tool.poetry.dependencies]
-python = "^3.6"
-requests = "^2.25.1"
-
-[tool.poetry.dev-dependencies]
-ipdb = "^0.13.4"
-pytest = "^6.2.2"
-pytest-cov = "^2.11.1"
-tox = "^3.21.2"
+[project.urls]
+Repository = "https://github.com/lv10/bestbuyapi"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools", "wheel"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

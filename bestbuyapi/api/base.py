@@ -1,4 +1,5 @@
-import requests
+from typing import Any, Dict, List, Optional, Tuple, Union
+import httpx
 
 from ..utils.exceptions import BestBuyAPIError
 from ..constants import (
@@ -11,14 +12,15 @@ from ..constants import (
 
 
 class BestBuyCore(object):
-    def __init__(self, api_key):
+    def __init__(self, api_key: str, client: Optional[httpx.AsyncClient] = None) -> None:
         """API's base class
         :params:
         :api_key (str): best buy developer API key.
         """
         self.api_key = api_key.strip()
+        self.client = client or httpx.AsyncClient()
 
-    def _call(self, payload):
+    async def _call(self, payload: Dict[str, Any]) -> Union[Dict[str, Any], bytes]:
         """
         Actual call ot the Best Buy API.
 
@@ -28,17 +30,17 @@ class BestBuyCore(object):
         """
         valid_payload = self._validate_params(payload)
         url, valid_payload = self._build_url(valid_payload)
-        request = requests.get(url, params=valid_payload)
+        request = await self.client.get(url, params=valid_payload)
 
         if "json" in request.headers["Content-Type"]:
             return request.json()
 
         return request.content
 
-    def _api_name(self):
+    def _api_name(self) -> Optional[str]:
         return None
 
-    def _build_url(self, payload):
+    def _build_url(self, payload: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
         """
         Receives a payload (dict) with the necessary params to make a call
         to the Best Buy API and returns a string URL that includes the
@@ -53,7 +55,7 @@ class BestBuyCore(object):
 
         query = payload["query"]
         # Pre-process paramenters before submitting payload.
-        out = dict()
+        out: Dict[str, Any] = dict()
         for key, value in payload["params"].items():
             if isinstance(value, list):
                 out[key] = ",".join(value)
@@ -69,7 +71,7 @@ class BestBuyCore(object):
 
         return (url, out)
 
-    def _validate_params(self, payload):
+    def _validate_params(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate parameters, double check that there are no None values
         in the keys.
@@ -79,7 +81,9 @@ class BestBuyCore(object):
         """
         for key, value in payload["params"].items():
             # TODO: Use a class variable to load the appropiate validation list of params
-            VALID_PARAMS = API_SEARCH_PARAMS + STORE_SEARCH_PARAMS + PRODUCT_SEARCH_PARAMS
+            VALID_PARAMS: List[str] = (
+                API_SEARCH_PARAMS + STORE_SEARCH_PARAMS + PRODUCT_SEARCH_PARAMS
+            )
 
             if key not in VALID_PARAMS:
                 err_msg = "{0} is an invalid Product" " Search Parameter".format(key)
