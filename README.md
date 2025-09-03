@@ -2,7 +2,7 @@
 Python Best Buy API Wrapper
 ---
 
-![image](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![image](https://img.shields.io/badge/version-3.0.0-blue.svg)
 
 [![image](https://travis-ci.com/lv10/bestbuyapi.svg?branch=master)](https://travis-ci.com/lv10/bestbuyapi)
 
@@ -16,8 +16,7 @@ Queries to the API endpoints are done similar to what you would put in
 the browser with the convenience of having python prepare for you the
 query, url, and interpret the response.
 
-NOTICE: This project is only supported by python 3.6, 3.7, 3.8. If you
-need support for an older version of python3, please reach out to me.
+NOTICE: This project is only supported by python 3.7+.
 
 # Features
 
@@ -32,19 +31,27 @@ For details on how to use the Best Buy API go to:
 
 # Install
 
-```{.sourceCode .python}
-$ pip install BestBuyAPI
+```{.sourceCode .bash}
+$ pip install bestbuyapi
 ```
 
 **How to use Product, Category, Store and Bulk APIs**
 
-```{.sourceCode .python
->>> from bestbuy import BestBuyAPI
->>> bb = BestBuyAPI("YourSecretAPIKey")
->>>
->>> a_prod = bb.products.search(query="sku=9776457", format="json")
->>> a_cat = bb.category.search_by_id(category_id="abcat0011001", format="json")
->>> all_categories = bb.bulk.archive("categories", "json")}
+```{.sourceCode .python}
+import asyncio
+from bestbuyapi import BestBuyAPI
+
+async def main():
+    async with BestBuyAPI("YourSecretAPIKey") as bb:
+        a_prod = await bb.products.search(query="sku=9776457", format="json")
+        a_cat = await bb.category.search_by_id(category_id="abcat0011001", format="json")
+        all_categories = await bb.bulk.archive("categories", "json")
+        print(a_prod)
+        print(a_cat)
+        print(all_categories)
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 # FAQ
